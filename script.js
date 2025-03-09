@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         solutionContainer.style.display = 'none';
         resultDiv.style.display = 'none';
         answerInput.value = '';
+        answerInput.blur(); // Remove focus from input field on mobile
         
         currentCards = [];
         currentValues = [];
@@ -215,6 +216,16 @@ document.addEventListener('DOMContentLoaded', () => {
         resultDiv.style.display = 'block';
     }
     
+    // Function to handle virtual keyboard issues on mobile
+    function handleInputFocus() {
+        // On mobile, scroll to make sure the input is visible
+        if (window.innerWidth <= 600) {
+            setTimeout(() => {
+                answerInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    }
+
     // Event listeners
     dealButton.addEventListener('click', dealCards);
     
@@ -227,8 +238,28 @@ document.addEventListener('DOMContentLoaded', () => {
     answerInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             checkAnswer();
+            // On mobile, blur the input to hide keyboard after submission
+            if (window.innerWidth <= 600) {
+                answerInput.blur();
+            }
         }
     });
+    
+    // Handle focus events for better mobile experience
+    answerInput.addEventListener('focus', handleInputFocus);
+    
+    // Add touch events for cards to make them more interactive on mobile
+    cardsContainer.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.card')) {
+            e.target.closest('.card').classList.add('active');
+        }
+    }, { passive: true });
+    
+    cardsContainer.addEventListener('touchend', (e) => {
+        document.querySelectorAll('.card.active').forEach(card => {
+            card.classList.remove('active');
+        });
+    }, { passive: true });
     
     // Deal new cards when the game mode changes
     noFaceCardsCheckbox.addEventListener('change', dealCards);
